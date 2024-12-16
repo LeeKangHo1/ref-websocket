@@ -19,13 +19,27 @@
         <li>{{msg}}</li>
     {{/models}}
 </ul>
-</body>
 
 <script>
-    setTimeout(() => {
-        // 2초가 지나면 새로고침
-        location.reload()
+    setInterval(()=>{
+        chatList();
     }, 2000);
+
+    // SRP에 따라 따로 작성
+    async function chatList(){
+        let response = await fetch("/api");
+        let responseBody = await response.json();
+
+        let site = document.querySelector("#chat-box");
+        site.innerHTML = "";
+
+        responseBody.forEach(chat=> {
+            let dom = document.createElement("li");
+            dom.innerText = chat.msg;
+            site.append(dom);
+        });
+    }
 </script>
 
+</body>
 </html>
