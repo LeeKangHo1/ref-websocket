@@ -23,13 +23,13 @@ public class ChatController {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("models", chatService.findAll());
-
         return "index";
     }
 
     @PostMapping("/chat")
     public String save(String msg) {
-        chatService.save(msg);
+        Chat chat = chatService.save(msg);
+        sms.convertAndSend("/sub/chat", chat); // 객체로 넣으면 JSON으로 바꿔서 보낸다.
         return "redirect:/";
     }
 

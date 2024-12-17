@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div>
+    <ul>
+        <li><a href="/">채팅목록</a></li>
+        <li><a href="/save-form">채팅 메시지쓰기</a></li>
+    </ul>
+</div>
+<h1>채팅 목록</h1>
+<button onclick="send1()">메세지전송1(pub)</button>
+<hr>
+<ul id="chat-box">
+    {{#models}}
+    <li>{{msg}}</li>
+    {{/models}}
+</ul>
+</body>
+
+<script>
+    // 1. 웹소켓 연결 세팅 및 연결 완료
+    let socket = new WebSocket("ws://localhost:8080/connect");
+    let stompClient = Stomp.over(socket); // stomp 라이브러리 장착
+
+    stompClient.connect({}, (frame)=>{ // {} -> header인데 지금은 생략 가능
+        console.log("1. Connected");
+
+        // 2. 구독하기 /sub -> /pub/room 요청이 있어야 발동
+        // sms.convertAndSend("/sub", "hello world"); 의 /sub를 의미
+        stompClient.subscribe("/sub/1", (response)=>{
+            console.log("2. Sub/1")
+            // reponse가 String이면 괜찮은데 JSON이면 parsing 필요
+            console.log(response);
+        });
+
+    });
+
+    function send1() {
+        // @MessageMapping("/room") 실행
+        stompClient.send("/pub/room", {}, "1"); // {}는 필요한 경우 헤더 정보를 입력
+    }
+
+
+</script>
+
+</html>

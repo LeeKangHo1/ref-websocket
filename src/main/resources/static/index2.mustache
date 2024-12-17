@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div>
+    <ul>
+        <li><a href="/">채팅목록</a></li>
+        <li><a href="/save-form">채팅 메시지쓰기</a></li>
+    </ul>
+</div>
+
+<h1>채팅 목록</h1>
+<hr>
+<ul id="chat-box">
+    {{#models}}
+        <li>{{msg}}</li>
+    {{/models}}
+</ul>
+
+</body>
+
+<script>
+    // 1. 웹소켓 연결 세팅 및 연결 완료
+    let socket = new WebSocket("ws://192.168.0.99:8080/connect"); // 선생님 IP
+    let stompClient = Stomp.over(socket); // stomp 라이브러리 장착
+
+    stompClient.connect({}, (frame)=>{ // {} -> header인데 지금은 생략 가능
+        console.log("1", "Connected");
+
+        stompClient.subscribe("/sub/chat", (response)=>{
+            console.log("2", response);
+            let body = JSON.parse(response.body); // 콘솔에서 message가 body안에 JSON으로 있어서 파싱 필요
+            console.log("3", body);
+
+            let site = document.querySelector("#chat-box");
+            let dom = document.createElement("li");
+            dom.innerHTML = body.msg;
+            site.prepend(dom); // 최신 메세지가 제일 위로
+        });
+    });
+
+</script>
+
+</html>
